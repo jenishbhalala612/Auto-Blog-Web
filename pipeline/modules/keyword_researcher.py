@@ -9,6 +9,7 @@ Finds SEO keywords for trending topics using:
 Results saved to vault/Keywords/ and SQLite.
 """
 
+import re
 from datetime import datetime
 from pathlib import Path
 
