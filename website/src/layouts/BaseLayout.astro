@@ -1,0 +1,119 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  lang?: 'en' | 'hi';
+  image?: string;
+  keywords?: string[];
+  canonicalUrl?: string;
+  alternateUrl?: string;
+  alternateLang?: string;
+}
+
+const {
+  title,
+  description,
+  lang = 'en',
+  image = '/images/og-default.png',
+  keywords = [],
+  canonicalUrl,
+  alternateUrl,
+  alternateLang,
+} = Astro.props;
+
+const siteName = 'AI & Tech Simplified';
+const fullTitle = `${title} | ${siteName}`;
+---
+
+<!DOCTYPE html>
+<html lang={lang} dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
+    <meta name="author" content="AutoBlog" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Canonical & Hreflang -->
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+    {alternateUrl && alternateLang && (
+      <link rel="alternate" hreflang={alternateLang} href={alternateUrl} />
+    )}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content={lang === 'hi' ? 'hi_IN' : 'en_US'} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Styles -->
+    <style>
+      @import '../styles/global.css';
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a href={`/${lang}/`} class="site-logo">
+          {lang === 'hi' ? '⚡ AI & टेक' : '⚡ AI & Tech'}
+        </a>
+        <nav class="site-nav">
+          <a href={`/${lang}/`} class="nav-link">
+            {lang === 'hi' ? 'होम' : 'Home'}
+          </a>
+          <div class="lang-switch">
+            <a
+              href="/en/"
+              class:list={['lang-btn', { active: lang === 'en' }]}
+            >
+              EN
+            </a>
+            <a
+              href="/hi/"
+              class:list={['lang-btn', { active: lang === 'hi' }]}
+            >
+              हि
+            </a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-links">
+          <a href={`/${lang}/`}>
+            {lang === 'hi' ? 'होम' : 'Home'}
+          </a>
+          <a href="/rss.xml">RSS</a>
+        </div>
+        <p>
+          {lang === 'hi'
+            ? `© ${new Date().getFullYear()} AI & Tech Simplified. सर्वाधिकार सुरक्षित।`
+            : `© ${new Date().getFullYear()} AI & Tech Simplified. All rights reserved.`
+          }
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

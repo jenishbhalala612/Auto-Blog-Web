@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog', ({ data }) => {
+  return data.lang === 'hi' && !data.draft;
+});
+
+const posts = allPosts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+---
+
+<BaseLayout
+  title="होम"
+  description="AI टूल्स, टेक ट्यूटोरियल और सरल गाइड्स। तकनीक की दुनिया से अपडेट रहें।"
+  lang="hi"
+  alternateUrl="/en/"
+  alternateLang="en"
+>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1>AI और टेक — सरल भाषा में</h1>
+      <p class="hero-subtitle text-hindi">
+        नवीनतम AI टूल्स, प्रैक्टिकल ट्यूटोरियल और टेक इनसाइट्स — आसान हिंदी में।
+      </p>
+      <div class="hero-tags">
+        {tags.slice(0, 6).map((tag) => (
+          <span class="tag">{tag}</span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog Grid -->
+  <section class="container">
+    {posts.length === 0 ? (
+      <div style="text-align: center; padding: 4rem 0; color: var(--color-text-muted);">
+        <p class="text-hindi" style="font-size: 1.25rem; margin-bottom: 1rem;">✨ पहली पोस्ट जल्द आ रही है!</p>
+        <p class="text-hindi">पाइपलाइन तैयार हो रही है। थोड़ी देर में वापस आएं।</p>
+      </div>
+    ) : (
+      <div class="blog-grid">
+        {posts.map((post, i) => (
+          <article class="blog-card animate-in">
+            {post.data.heroImage && (
+              <img
+                class="blog-card-image"
+                src={post.data.heroImage}
+                alt={post.data.heroImageAlt || post.data.title}
+                loading={i < 3 ? 'eager' : 'lazy'}
+              />
+            )}
+            <div class="blog-card-body">
+              <div class="blog-card-meta">
+                <span class="blog-card-date">
+                  📅 {post.data.pubDate.toLocaleDateString('hi-IN', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </span>
+              </div>
+              <h2 class="blog-card-title text-hindi">
+                <a href={`/hi/${post.slug}/`}>{post.data.title}</a>
+              </h2>
+              <p class="blog-card-excerpt text-hindi">{post.data.description}</p>
+              <div class="blog-card-tags">
+                {post.data.tags.slice(0, 3).map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>

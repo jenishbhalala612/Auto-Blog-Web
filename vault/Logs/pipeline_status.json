@@ -1,0 +1,36 @@
+{
+  "status": "done",
+  "current_task": null,
+  "current_step": 6,
+  "total_steps": 6,
+  "progress_pct": 100,
+  "run_type": "full",
+  "started_at": "2026-10-10T09:46:24.468671",
+  "last_updated": "2026-10-10T09:46:40.618472",
+  "counters": {
+    "topics_found": 25,
+    "keywords_found": 200,
+    "drafts_created": 10,
+    "posts_published": 0
+  },
+  "log_lines": [
+    "[11:36:57] Pipeline started (full)",
+    "[11:36:57] \u25b6 Step 1/6: Trend Research",
+    "[11:37:16] \u2713 Done: Trend Research (topics_found=25)",
+    "[11:37:16] \u25b6 Step 2/6: Keyword Research",
+    "[11:54:46] \u2713 Done: Keyword Research (keywords_found=200)",
+    "[11:54:46] \u25b6 Step 3/6: Content Writing",
+    "[15:51:03] \ud83d\uded1 Pipeline forcefully stopped by user",
+    "[18:35:48] Pipeline resumed from step 3 (full)",
+    "[09:35:00] \u2713 Done: Content Writing (drafts_created=10 - skipped per user instruction, 7 EN & 3 HI drafts existing)",
+    "[09:46:24] Pipeline resumed from step 4 (full)",
+    "[09:46:24] \u25b6 Step 4/6: Image Handling",
+    "[09:46:29] \u2713 Done: Image Handling",
+    "[09:46:29] \u25b6 Step 5/6: Publishing",
+    "[09:46:29] \u2713 Done: Publishing (posts_published=0)",
+    "[09:46:29] \u25b6 Step 6/6: Health Check",
+    "[09:46:39] \u2713 Done: Health Check",
+    "[09:46:40] Pipeline completed successfully \u2705"
+  ],
+  "error": null
+}

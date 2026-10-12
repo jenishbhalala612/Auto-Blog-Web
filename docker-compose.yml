@@ -1,0 +1,88 @@
+version: "3.9"
+
+services:
+  # ========================================
+  # SearXNG — Self-hosted search engine
+  # ========================================
+  searxng:
+    image: searxng/searxng:latest
+    container_name: autoblog-searxng
+    ports:
+      - "8080:8080"
+    volumes:
+      - searxng-data:/etc/searxng
+      # Mount our custom settings so JSON API is enabled
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8080
+      - SEARXNG_SECRET_KEY=autoblog-searxng-secret-change-in-production
+    restart: unless-stopped
+
+  # ========================================
+  # Uptime Kuma — Monitoring dashboard
+  # ========================================
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: autoblog-uptime-kuma
+    ports:
+      - "3001:3001"
+    volumes:
+      - uptime-kuma-data:/app/data
+    restart: unless-stopped
+
+  # ========================================
+  # Pipeline — Python automation engine
+  # ========================================
+  pipeline:
+    build:
+      context: ./pipeline
+      dockerfile: Dockerfile
+    container_name: autoblog-pipeline
+    env_file:
+      - .env
+    environment:
+      - VAULT_PATH=/app/vault
+      - WEBSITE_PATH=/app/website-content
+      - DATABASE_PATH=/app/data/autoblog.db
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    volumes:
+      - ./vault:/app/vault
+      - ./website/src/content:/app/website-content
+      - ./pipeline:/app/pipeline
+      - pipeline-db:/app/data
+    depends_on:
+      - searxng
+    restart: unless-stopped
+    # Override for scheduled mode
+    command: python main.py --schedule
+
+  # ========================================
+  # Monitor — Live pipeline dashboard
+  # ========================================
+  monitor:
+    build:
+      context: ./pipeline
+      dockerfile: Dockerfile
+    container_name: autoblog-monitor
+    env_file:
+      - .env
+    environment:
+      - VAULT_PATH=/app/vault
+      - WEBSITE_PATH=/app/website-content
+      - DATABASE_PATH=/app/data/autoblog.db
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./vault:/app/vault
+      - ./pipeline:/app/pipeline
+      - pipeline-db:/app/data
+    depends_on:
+      - pipeline
+    restart: unless-stopped
+    command: python monitor.py --port 5000
+
+volumes:
+  searxng-data:
+  uptime-kuma-data:
+  pipeline-db:

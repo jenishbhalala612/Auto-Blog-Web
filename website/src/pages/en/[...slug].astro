@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => {
+    return data.lang === 'en' && !data.draft;
+  });
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  lang="en"
+  keywords={post.data.keywords}
+  image={post.data.heroImage}
+>
+  <article class="article">
+    <div class="content-container">
+      <!-- Article Header -->
+      <header class="article-header">
+        <div class="blog-card-tags" style="justify-content: center; margin-bottom: var(--space-4);">
+          {post.data.tags.map((tag) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+        <h1>{post.data.title}</h1>
+        <div class="article-meta">
+          <span>📅 {formattedDate}</span>
+          <span>•</span>
+          <span>✍️ {post.data.author}</span>
+        </div>
+      </header>
+
+      <!-- Hero Image -->
+      {post.data.heroImage && (
+        <img
+          class="article-hero"
+          src={post.data.heroImage}
+          alt={post.data.heroImageAlt || post.data.title}
+        />
+      )}
+
+      <!-- Article Content -->
+      <div class="article-content">
+        <Content />
+      </div>
+
+      <!-- Back Link -->
+      <div style="text-align: center; padding-top: var(--space-12);">
+        <a href="/en/" class="tag" style="font-size: var(--font-size-sm); padding: var(--space-2) var(--space-5);">
+          ← Back to all posts
+        </a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
