@@ -22,7 +22,8 @@ website/.astro/
 Thumbs.db
 desktop.ini
 
-# IDE
+# IDE & Agents
+.agents/
 .vscode/
 .idea/
 
