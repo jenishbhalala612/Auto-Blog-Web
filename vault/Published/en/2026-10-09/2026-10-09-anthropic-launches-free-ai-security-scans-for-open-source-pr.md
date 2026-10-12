@@ -8,7 +8,7 @@ author: "AutoBlog"
 lang: "en"
 heroImage: "/images/posts/2026-10-10/anthropic-launches-free-ai-security-scans-for-open-source-pr/image-1.jpg"
 heroImageAlt: "Anthropic launches free AI security scans for open-source projects"
-draft: true
+draft: false
 ---
 
 You know that sinking feeling when you're merging a PR at 6 PM on a Friday, and you realize you never actually checked whether that dependency you pulled in last month has a known vulnerability? Now multiply that anxiety by ten — and add the fact that "vulnerability" might mean a prompt injection vector that could leak your users' data through your AI-powered feature.
