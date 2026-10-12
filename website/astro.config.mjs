@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 const site = process.env.SITE_URL || 
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://auto-blog-web.vercel.app');
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://auto-blog-web-three.vercel.app');
 
 export default defineConfig({
   site,
