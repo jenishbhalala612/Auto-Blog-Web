@@ -57,6 +57,9 @@ class HealthMonitor:
         # 7. Draft metadata integrity (detect empty keywords, blank heroImage)
         self._check_draft_metadata(report)
 
+        # 8. Verify live status of recently published posts
+        self._check_published_posts_live(report)
+
         # Update overall status
         report["all_ok"] = len(report["issues"]) == 0
 
@@ -176,18 +179,24 @@ class HealthMonitor:
         check_name = "pending_work"
         pending_topics = db.get_pending_topics()
         
-        # Count drafts in vault
+        # Count drafts in vault (differentiating awaiting review vs approved)
         draft_count = 0
-        for lang in config.LANGUAGES:
-            draft_dir = config.VAULT_DRAFTS / lang
-            if draft_dir.exists():
-                draft_count += len(list(draft_dir.rglob("*.md")))
-
         approved_count = 0
         for lang in config.LANGUAGES:
-            approved_dir = config.VAULT_APPROVED / lang
-            if approved_dir.exists():
-                approved_count += len(list(approved_dir.rglob("*.md")))
+            draft_dir = config.VAULT_DRAFTS / lang
+            if not draft_dir.exists():
+                continue
+            for md_file in draft_dir.rglob("*.md"):
+                try:
+                    txt = md_file.read_text(encoding="utf-8")
+                    if "rejected: true" in txt or "status: rejected" in txt:
+                        continue
+                    if "draft: false" in txt:
+                        approved_count += 1
+                    else:
+                        draft_count += 1
+                except Exception:
+                    draft_count += 1
 
         report["checks"][check_name] = (
             f"{len(pending_topics)} topics pending, "
@@ -227,3 +236,36 @@ class HealthMonitor:
                 report["issues"].append(f"Incomplete draft metadata: {inc}")
         else:
             report["checks"][check_name] = "ok (all drafts have metadata)"
+
+    def _check_published_posts_live(self, report: dict):
+        """Verify recently published posts respond with HTTP 200."""
+        check_name = "published_posts_live"
+        base_url = config.SITE_URL.rstrip("/")
+        if base_url.startswith("https://your-site"):
+            report["checks"][check_name] = "skipped (default URL)"
+            return
+
+        with db.get_connection() as conn:
+            recent_posts = conn.execute(
+                "SELECT title, slug, language FROM posts WHERE status = 'published' ORDER BY published_at DESC LIMIT 5"
+            ).fetchall()
+
+        if not recent_posts:
+            report["checks"][check_name] = "ok (no published posts yet)"
+            return
+
+        unreachable = []
+        for p in recent_posts:
+            url = f"{base_url}/{p['language']}/{p['slug']}/"
+            try:
+                resp = self.client.get(url, timeout=5.0)
+                if resp.status_code != 200:
+                    unreachable.append(f"{p['slug']} (HTTP {resp.status_code})")
+            except Exception as e:
+                unreachable.append(f"{p['slug']} ({type(e).__name__})")
+
+        if unreachable:
+            report["checks"][check_name] = f"warning ({len(unreachable)} post(s) pending live confirmation)"
+            report["issues"].append(f"Pending live post confirmation: {', '.join(unreachable[:3])}")
+        else:
+            report["checks"][check_name] = f"ok ({len(recent_posts)} published post(s) verified live)"

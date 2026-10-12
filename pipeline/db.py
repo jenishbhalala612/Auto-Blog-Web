@@ -81,6 +81,7 @@ def init_database():
                 tags TEXT,
                 file_path TEXT,
                 word_count INTEGER DEFAULT 0,
+                publish_attempts INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 approved_at TIMESTAMP,
                 published_at TIMESTAMP,
@@ -140,6 +141,15 @@ def init_database():
             );
         """)
 
+        # Ensure schema migrations for existing databases
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(posts)")
+        existing_cols = {row["name"] for row in cursor.fetchall()}
+        if "publish_attempts" not in existing_cols:
+            conn.execute("ALTER TABLE posts ADD COLUMN publish_attempts INTEGER DEFAULT 0")
+        if "published_at" not in existing_cols:
+            conn.execute("ALTER TABLE posts ADD COLUMN published_at TIMESTAMP")
+
 
 # ── Convenience functions ───────────────────────────────
 
@@ -170,6 +180,66 @@ def log_post(title: str, slug: str, language: str, status: str, file_path: str, 
         )
 
 
+def get_post_by_slug(slug: str) -> dict | None:
+    """Fetch a post record by slug."""
+    with get_connection() as conn:
+        row = conn.execute("SELECT * FROM posts WHERE slug = ?", (slug,)).fetchone()
+        return dict(row) if row else None
+
+
+def is_post_published(slug: str) -> bool:
+    """Check if a post has already been marked published in the database."""
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT status, published_at FROM posts WHERE slug = ?",
+            (slug,),
+        ).fetchone()
+        if not row:
+            return False
+        return (row["status"] == "published") or (row["published_at"] is not None)
+
+
+def increment_publish_attempts(slug: str) -> int:
+    """Increment the publish failure/attempt counter for a post and return the new count."""
+    now = datetime.now().isoformat()
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE posts SET publish_attempts = COALESCE(publish_attempts, 0) + 1, updated_at = ? WHERE slug = ?",
+            (now, slug),
+        )
+        row = conn.execute("SELECT publish_attempts FROM posts WHERE slug = ?", (slug,)).fetchone()
+        return row["publish_attempts"] if row and row["publish_attempts"] is not None else 1
+
+
+def get_publish_attempts(slug: str) -> int:
+    """Get the current publish failure attempt count for a post."""
+    with get_connection() as conn:
+        row = conn.execute("SELECT publish_attempts FROM posts WHERE slug = ?", (slug,)).fetchone()
+        return row["publish_attempts"] if row and row["publish_attempts"] is not None else 0
+
+
+def reset_publish_attempts(slug: str):
+    """Reset publish attempt counter back to 0."""
+    with get_connection() as conn:
+        conn.execute("UPDATE posts SET publish_attempts = 0 WHERE slug = ?", (slug,))
+
+
+def mark_post_published(slug: str, file_path: str = ""):
+    """Mark a post as published with timestamp and clear attempt count."""
+    now = datetime.now().isoformat()
+    with get_connection() as conn:
+        if file_path:
+            conn.execute(
+                "UPDATE posts SET status = 'published', published_at = ?, updated_at = ?, file_path = ?, publish_attempts = 0 WHERE slug = ?",
+                (now, now, file_path, slug),
+            )
+        else:
+            conn.execute(
+                "UPDATE posts SET status = 'published', published_at = ?, updated_at = ?, publish_attempts = 0 WHERE slug = ?",
+                (now, now, slug),
+            )
+
+
 def update_post_status(slug: str, status: str):
     """Update a post's status (draft → approved → published)."""
     now = datetime.now().isoformat()
@@ -177,7 +247,7 @@ def update_post_status(slug: str, status: str):
         if status == "approved":
             conn.execute("UPDATE posts SET status = ?, approved_at = ?, updated_at = ? WHERE slug = ?", (status, now, now, slug))
         elif status == "published":
-            conn.execute("UPDATE posts SET status = ?, published_at = ?, updated_at = ? WHERE slug = ?", (status, now, now, slug))
+            conn.execute("UPDATE posts SET status = ?, published_at = ?, updated_at = ?, publish_attempts = 0 WHERE slug = ?", (status, now, now, slug))
         else:
             conn.execute("UPDATE posts SET status = ?, updated_at = ? WHERE slug = ?", (status, now, slug))
 
