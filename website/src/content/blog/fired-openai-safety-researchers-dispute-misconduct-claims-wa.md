@@ -6,8 +6,8 @@ tags: ["Tech", "AI Tools"]
 keywords: ["OpenAI safety researcher fired controversy", "AI safety research misconduct claims disputed", "Chilling effect on AI research openai", "OpenAI employee fired safety concerns", "AI research ethics violation allegations"]
 author: "AutoBlog"
 lang: "en"
-heroImage: "/images/posts/2026-10-10/fired-openai-safety-researchers-dispute-misconduct-claims-wa/image-1.jpg"
-heroImageAlt: "Fired OpenAI safety researchers dispute misconduct claims, warn of chilling effect"
+heroImage: "/images/posts/2026-10-10/test-open-source-ai-code-security-scanner/image-1.jpg"
+heroImageAlt: "OpenAI Safety Research Investigation"
 draft: false
 ---
 

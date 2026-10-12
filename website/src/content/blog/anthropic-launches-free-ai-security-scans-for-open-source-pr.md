@@ -31,7 +31,7 @@ The pitch is simple: you point it at a GitHub repo, it runs, and you get a repor
 That last part is the whole point. Most **best free AI security tools for developers** still gate their most useful features behind a paywall. Anthropic is betting that open-source maintainers — the people who *already* volunteer their time — shouldn't also have to pay to keep their projects safe.
 
 
-![Anthropic launches free AI security scans for open-source projects](/images/posts/2026-10-10/anthropic-launches-free-ai-security-scans-for-open-source-pr/image-2.jpg)
+![Code editor identifying security vulnerabilities in AI routines](/images/posts/2026-10-10/test-open-source-ai-code-security-scanner/image-2.jpg)
 
 
 ## How to Scan Open Source Code for AI Risks (The Practical Part)
@@ -72,8 +72,9 @@ A few tips from actually poking at this:
 - **Run it in CI before you merge.** A 2-minute scan that catches a prompt-injection sink is infinitely cheaper than a post-incident blog post.
 - **Don't ignore "medium" findings in user-facing code.** A medium-severity "unfiltered user input reaches LLM context" is a *high*-severity problem if your app processes stranger input.
 
+> A 2-minute automated scan that catches a prompt-injection sink is infinitely cheaper than a post-incident apology blog post.
 
-![Anthropic launches free AI security scans for open-source projects](/images/posts/2026-10-10/anthropic-launches-free-ai-security-scans-for-open-source-pr/image-3.jpg)
+![Developer terminal setup monitoring CI security pipelines](/images/posts/2026-10-10/test-ai-agents-run-2/image-1.jpg)
 
 
 ## Why This Changes the Calculus for Maintainers
@@ -86,10 +87,11 @@ Meanwhile, the **top AI security scanning software** that *does* understand thes
 
 A solo maintainer of a 12k-star LangChain plugin doesn't have a security budget. They don't have a CISO. They've got a laptop, a lot of good intentions, and 3,000 open issues. A free, automated, CI-integrable scan is the difference between "I *should* audit this" and "I *did* audit this, here's the report."
 
+> A free, automated, CI-integrable scan is the difference between "I should audit this" and "I did audit this, here's the report."
+
 That's not a small thing. That's the difference between the AI supply chain being a security afterthought and it being a managed risk.
 
-
-![Anthropic launches free AI security scans for open-source projects](/images/posts/2026-10-10/anthropic-launches-free-ai-security-scans-for-open-source-pr/image-4.jpg)
+![Development laptop testing open-source AI models](/images/posts/2026-10-10/test-ai-agents-run-2/image-2.jpg)
 
 
 ## The Bigger Picture (and an Honest Caveat)

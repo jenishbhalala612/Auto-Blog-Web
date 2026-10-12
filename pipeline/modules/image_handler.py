@@ -139,8 +139,35 @@ class ImageHandler:
             console.print(f"    [yellow]⚠ No images found for: {title[:40]}[/]")
             return False
 
-        # Select 4 distinct images (1 hero + 3 content images)
-        selected_images = fresh_candidates[:4]
+        # Ensure in-article diversity: deduplicate by photographer / visual series
+        selected_images = []
+        seen_photographers = set()
+        seen_urls = set()
+
+        # First pass: pick candidates from distinct photographers / sets
+        for cand in fresh_candidates:
+            url = cand.get("url", "")
+            source = cand.get("source", "")
+            # Extract photographer name from source string
+            photog = source.split("Photographer:")[-1].strip(" )") if "Photographer:" in source else source
+
+            if url not in seen_urls:
+                if photog not in seen_photographers or len(seen_photographers) >= len(fresh_candidates):
+                    selected_images.append(cand)
+                    seen_urls.add(url)
+                    seen_photographers.add(photog)
+                    if len(selected_images) == 4:
+                        break
+
+        # Fallback if strict photographer diversity left fewer than 4 candidates
+        if len(selected_images) < 4:
+            for cand in fresh_candidates:
+                if cand.get("url") not in seen_urls:
+                    selected_images.append(cand)
+                    seen_urls.add(cand.get("url"))
+                    if len(selected_images) == 4:
+                        break
+
         hero_meta = selected_images[0]
         hero_source = hero_meta.get("source", "Unsplash Stock")
 
@@ -236,7 +263,10 @@ class ImageHandler:
         # Combine: core title (up to 3 words) + distinct keyword terms (up to 2 words)
         combined_words = title_words[:3] + cleaned_kw_words[:2]
         if len(combined_words) >= 2:
-            return " ".join(combined_words)
+            base_q = " ".join(combined_words)
+            if any(term in base_q.lower() for term in ["ai", "security", "code", "model", "software", "research", "scan", "developer"]):
+                return f"{base_q} computer"
+            return base_q
 
         # Fallback to title words if available
         if title_words:

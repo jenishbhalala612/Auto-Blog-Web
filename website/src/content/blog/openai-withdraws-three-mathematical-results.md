@@ -6,8 +6,8 @@ tags: ["AI Tools", "Tech"]
 keywords: ["OpenAI mathematical research withdrawal details", "Latest OpenAI AI breakthroughs canceled", "What happened to OpenAI's three math papers", "How OpenAI withdrew controversial mathematical findings", "OpenAI mathematical results controversy explained"]
 author: "AutoBlog"
 lang: "en"
-heroImage: "/images/posts/2026-10-10/openai-withdraws-three-mathematical-results/image-1.jpg"
-heroImageAlt: "OpenAI withdraws three mathematical results"
+heroImage: "/images/posts/2026-10-10/test-next-gen-quantum-computing-chips/image-1.jpg"
+heroImageAlt: "Mathematical Analysis of AI Results"
 draft: false
 ---
 

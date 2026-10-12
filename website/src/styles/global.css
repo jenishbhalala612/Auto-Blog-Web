@@ -1,10 +1,10 @@
 /* ==========================================================================
    Editorial Design System — "Reading-First Editorial"
-   Colors, typography, layout, and minimal motion
+   Colors, typography, layout, texture, and minimal motion
    ========================================================================== */
 
 /* --- Typography: Google Fonts --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 /* --- CSS Variables & Design Tokens --- */
 :root {
@@ -14,7 +14,7 @@
   --text-muted: #5B6470;
   --border: #E4E0D8;
   --accent: #B8863B;
-  --accent-subtle: rgba(184, 134, 59, 0.12);
+  --accent-subtle: rgba(184, 134, 59, 0.08);
   --code-bg: #F0EDE5;
 
   /* Typography Stacks */
@@ -36,7 +36,7 @@
   --text-muted: #8A92A0;
   --border: #262B34;
   --accent: #D4A24C;
-  --accent-subtle: rgba(212, 162, 76, 0.14);
+  --accent-subtle: rgba(212, 162, 76, 0.10);
   --code-bg: #1B1F27;
 }
 
@@ -48,7 +48,7 @@
     --text-muted: #8A92A0;
     --border: #262B34;
     --accent: #D4A24C;
-    --accent-subtle: rgba(212, 162, 76, 0.14);
+    --accent-subtle: rgba(212, 162, 76, 0.10);
     --code-bg: #1B1F27;
   }
 }
@@ -94,7 +94,8 @@ body {
 :lang(hi) .hero-editorial-title,
 :lang(hi) .featured-title,
 :lang(hi) .post-title,
-:lang(hi) .article-title {
+:lang(hi) .article-title,
+:lang(hi) .article-body blockquote {
   font-family: var(--font-serif-hi) !important;
 }
 
@@ -134,6 +135,15 @@ main {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001s !important;
   }
+}
+
+/* --- Consistent Editorial Image Palette Treatment --- */
+.featured-hero-image,
+.post-thumbnail,
+.article-hero-image,
+.article-body img {
+  border: 1px solid var(--border);
+  border-radius: 2px;
 }
 
 /* --- Header / Masthead --- */
@@ -229,10 +239,24 @@ main {
   fill: currentColor;
 }
 
-/* --- Masthead / Editorial Header --- */
+/* --- Masthead / Editorial Header with Soft Texture Glow --- */
 .hero-editorial {
   padding: 3.75rem 0 2.25rem;
   text-align: left;
+  position: relative;
+}
+
+/* Subtle background glow/texture behind masthead */
+.hero-editorial::before {
+  content: '';
+  position: absolute;
+  top: -1.5rem;
+  left: -20%;
+  right: -20%;
+  bottom: 0;
+  background: radial-gradient(ellipse 70% 65% at 50% 25%, var(--accent-subtle) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .masthead-kicker {
@@ -285,6 +309,28 @@ main {
   padding: 2.75rem 0 3.25rem;
   border-bottom: 1px solid var(--border);
   text-align: left;
+}
+
+.featured-kicker-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.8125rem;
+}
+
+.badge-featured {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--bg);
+  background-color: var(--accent);
+  padding: 0.2rem 0.55rem;
+  border-radius: 2px;
+  line-height: 1;
 }
 
 .featured-hero-wrap {
@@ -367,7 +413,7 @@ main {
   font-family: var(--font-sans);
 }
 
-/* --- Remaining Posts (Editorial List with Thumbnails) --- */
+/* --- Remaining Posts (Editorial List with Thumbnails & Soft Row Hover) --- */
 .posts-list {
   list-style: none;
   padding: 0;
@@ -379,9 +425,16 @@ main {
   align-items: flex-start;
   justify-content: space-between;
   gap: 1.75rem;
-  padding: 2.25rem 0;
+  padding: 2rem 1rem;
+  margin: 0 -1rem;
   border-bottom: 1px solid var(--border);
+  border-radius: 4px;
   text-align: left;
+  transition: background-color 0.18s ease;
+}
+
+.post-row:hover {
+  background-color: var(--accent-subtle);
 }
 
 .post-row:last-child {
@@ -452,12 +505,11 @@ main {
   height: 98px;
   object-fit: cover;
   display: block;
-  border: 1px solid var(--border);
-  transition: opacity 0.15s ease, border-color 0.15s ease;
+  transition: opacity 0.18s ease, border-color 0.18s ease;
 }
 
-.post-thumbnail-link:hover .post-thumbnail {
-  opacity: 0.92;
+.post-row:hover .post-thumbnail {
+  opacity: 0.94;
   border-color: var(--accent);
 }
 
@@ -468,7 +520,20 @@ main {
   font-size: 1rem;
 }
 
-/* --- Article Reading View (Kept As-Is) --- */
+/* --- Scrolled Article Focus View (?view=quote) --- */
+[data-view="quote"] .article-nav-top,
+[data-view="quote"] .article-header,
+[data-view="quote"] .article-hero-wrap,
+[data-view="quote"] .article-body > h2:first-of-type,
+[data-view="quote"] .article-body > p:nth-of-type(-n+5),
+[data-view="quote"] .article-body > ul:first-of-type,
+[data-view="quote"] .article-body > pre:nth-of-type(1),
+[data-view="quote"] .article-body > pre:nth-of-type(2),
+[data-view="quote"] .article-body > p:nth-of-type(6) {
+  display: none !important;
+}
+
+/* --- Article Reading View --- */
 .article-page {
   padding: 2.5rem 0 5rem;
 }
@@ -518,7 +583,7 @@ main {
   margin-bottom: 1.5rem;
 }
 
-/* Hero image - full reading width, no borders, no cards, no shadows */
+/* Hero image - full reading width, no cards, no shadows */
 .article-hero-wrap {
   margin: 1.5rem 0 2.5rem;
   width: 100%;
@@ -592,14 +657,19 @@ main {
   color: var(--text);
 }
 
+/* Editorial Pull Quote Styling */
 .article-body blockquote {
-  border-left: 2px solid var(--accent);
-  padding-left: 1.25rem;
-  margin: 2rem 0;
+  border-left: 3px solid var(--accent);
+  padding: 1.25rem 1.75rem;
+  margin: 2.75rem 0;
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 1.15rem;
-  color: var(--text-muted);
+  font-size: 1.32rem;
+  font-weight: 500;
+  line-height: 1.52;
+  color: var(--text);
+  background-color: var(--accent-subtle);
+  border-radius: 0 4px 4px 0;
 }
 
 .article-body code {
@@ -628,6 +698,13 @@ main {
   border: 0;
   border-top: 1px solid var(--border);
   margin: 2.5rem 0;
+}
+
+.article-body img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 2rem 0;
 }
 
 /* Article footer */
@@ -692,7 +769,8 @@ main {
 
   .post-row {
     gap: 1rem;
-    padding: 1.75rem 0;
+    padding: 1.5rem 0.5rem;
+    margin: 0 -0.5rem;
   }
 
   .post-thumbnail {
@@ -711,5 +789,10 @@ main {
   .article-body {
     font-size: 1.05rem;
     line-height: 1.68;
+  }
+
+  .article-body blockquote {
+    font-size: 1.15rem;
+    padding: 1rem 1.25rem;
   }
 }

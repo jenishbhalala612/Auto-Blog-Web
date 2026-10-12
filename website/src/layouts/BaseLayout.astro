@@ -40,6 +40,10 @@ import '../styles/global.css';
         try {
           const urlParams = new URLSearchParams(window.location.search);
           const themeParam = urlParams.get('theme');
+          const viewParam = urlParams.get('view');
+          if (viewParam) {
+            document.documentElement.setAttribute('data-view', viewParam);
+          }
           const stored = themeParam || localStorage.getItem('theme');
           if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.setAttribute('data-theme', 'dark');

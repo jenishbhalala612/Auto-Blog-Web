@@ -41,11 +41,14 @@ const remainingPosts = posts.slice(1);
         <!-- Featured Visual Anchor -->
         {featuredPost && (
           <article class="featured-post">
-            <div class="post-meta">
-              <span class="meta-tag" style="text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
-                ★ {featuredPost.data.tags?.[0] || 'प्रमुख लेख'}
-              </span>
-              <span class="meta-separator" aria-hidden="true">·</span>
+            <div class="featured-kicker-bar">
+              <span class="badge-featured">विशेष संपादकीय</span>
+              {featuredPost.data.tags?.[0] && (
+                <>
+                  <span class="meta-tag">{featuredPost.data.tags[0]}</span>
+                  <span class="meta-separator" aria-hidden="true">·</span>
+                </>
+              )}
               <time datetime={featuredPost.data.pubDate.toISOString()} class="meta-date">
                 {featuredPost.data.pubDate.toLocaleDateString('hi-IN', {
                   year: 'numeric',
