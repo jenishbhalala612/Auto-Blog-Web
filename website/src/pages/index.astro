@@ -1,4 +1,18 @@
 ---
-// Root index — redirect to English home
-return Astro.redirect('/en/');
+// Relative redirect to /en/ without forcing external domain
 ---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="refresh" content="0;url=/en/" />
+    <title>AutoBlog — Redirecting</title>
+    <script is:inline>
+      window.location.replace('/en/');
+    </script>
+  </head>
+  <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #FAF8F4; color: #1C2127; padding: 2rem;">
+    <p>Redirecting to <a href="/en/" style="color: #B8863B;">AutoBlog (/en/)</a>...</p>
+  </body>
+</html>

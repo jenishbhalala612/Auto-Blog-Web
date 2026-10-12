@@ -31,7 +31,7 @@ VAULT_IMAGES = VAULT_PATH / "Images"
 
 # ── Site ────────────────────────────────────────────────
 SITE_NAME = os.getenv("SITE_NAME", "AI & Tech Simplified")
-SITE_URL = os.getenv("SITE_URL", "https://your-site.pages.dev")
+SITE_URL = os.getenv("SITE_URL", "https://auto-blog-web.vercel.app")
 SITE_DESCRIPTION = os.getenv("SITE_DESCRIPTION", "")
 
 # ── Ollama (Local LLM) ─────────────────────────────────
