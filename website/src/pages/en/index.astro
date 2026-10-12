@@ -9,6 +9,9 @@ const allPosts = await getCollection('blog', ({ data }) => {
 const posts = allPosts.sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
+
+const featuredPost = posts[0];
+const remainingPosts = posts.slice(1);
 ---
 
 <BaseLayout
@@ -19,47 +22,119 @@ const posts = allPosts.sort(
   alternateLang="hi"
 >
   <div class="page-container">
+    <!-- Publication Masthead -->
     <section class="hero-editorial">
+      <span class="masthead-kicker">A Journal of Computing & AI</span>
       <h1 class="hero-editorial-title">Dispatches & Essays</h1>
       <p class="hero-editorial-subtitle">
         Independent technical commentary, system breakdowns, and practical developments in artificial intelligence.
       </p>
+      <div class="masthead-rule" aria-hidden="true"></div>
     </section>
 
-    <section aria-label="Recent articles">
-      {posts.length === 0 ? (
-        <div class="empty-state">
-          <p>No published articles yet. Please check back shortly.</p>
-        </div>
-      ) : (
-        <ul class="posts-list">
-          {posts.map((post) => (
-            <li class="post-item">
-              <h2 class="post-title">
-                <a href={`/en/${post.slug}/`}>{post.data.title}</a>
-              </h2>
-              {post.data.description && (
-                <p class="post-description">{post.data.description}</p>
-              )}
-              <div class="post-meta">
-                {post.data.tags && post.data.tags.length > 0 && (
-                  <>
-                    <span class="meta-tag">{post.data.tags[0]}</span>
-                    <span class="meta-separator" aria-hidden="true">·</span>
-                  </>
-                )}
-                <time datetime={post.data.pubDate.toISOString()} class="meta-date">
-                  {post.data.pubDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </time>
+    {posts.length === 0 ? (
+      <div class="empty-state">
+        <p>No published articles yet. Please check back shortly.</p>
+      </div>
+    ) : (
+      <>
+        <!-- Featured Visual Anchor -->
+        {featuredPost && (
+          <article class="featured-post">
+            <div class="post-meta">
+              <span class="meta-tag" style="text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+                ★ {featuredPost.data.tags?.[0] || 'Featured'}
+              </span>
+              <span class="meta-separator" aria-hidden="true">·</span>
+              <time datetime={featuredPost.data.pubDate.toISOString()} class="meta-date">
+                {featuredPost.data.pubDate.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </time>
+            </div>
+
+            {featuredPost.data.heroImage && (
+              <div class="featured-hero-wrap">
+                <a href={`/en/${featuredPost.slug}/`}>
+                  <img
+                    src={featuredPost.data.heroImage}
+                    alt={featuredPost.data.heroImageAlt || featuredPost.data.title}
+                    class="featured-hero-image"
+                    loading="eager"
+                  />
+                </a>
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+            )}
+
+            <h2 class="featured-title">
+              <a href={`/en/${featuredPost.slug}/`}>
+                {featuredPost.data.title}
+              </a>
+            </h2>
+
+            {featuredPost.data.description && (
+              <p class="featured-description">
+                {featuredPost.data.description}
+              </p>
+            )}
+          </article>
+        )}
+
+        <!-- Remaining Dispatches with Thumbnails -->
+        {remainingPosts.length > 0 && (
+          <section aria-label="Recent articles">
+            <header class="section-header">
+              <h2 class="section-title">Recent Dispatches</h2>
+              <span class="section-count">{remainingPosts.length} stories</span>
+            </header>
+
+            <ul class="posts-list">
+              {remainingPosts.map((post) => (
+                <li class="post-row">
+                  <div class="post-row-content">
+                    <div class="post-meta" style="margin-bottom: 0.5rem;">
+                      {post.data.tags && post.data.tags.length > 0 && (
+                        <>
+                          <span class="meta-tag">{post.data.tags[0]}</span>
+                          <span class="meta-separator" aria-hidden="true">·</span>
+                        </>
+                      )}
+                      <time datetime={post.data.pubDate.toISOString()} class="meta-date">
+                        {post.data.pubDate.toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </time>
+                    </div>
+
+                    <h3 class="post-title">
+                      <a href={`/en/${post.slug}/`}>{post.data.title}</a>
+                    </h3>
+
+                    {post.data.description && (
+                      <p class="post-description">{post.data.description}</p>
+                    )}
+                  </div>
+
+                  {post.data.heroImage && (
+                    <a href={`/en/${post.slug}/`} class="post-thumbnail-link" tabindex="-1" aria-hidden="true">
+                      <img
+                        src={post.data.heroImage}
+                        alt=""
+                        class="post-thumbnail"
+                        loading="lazy"
+                      />
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </>
+    )}
   </div>
 </BaseLayout>

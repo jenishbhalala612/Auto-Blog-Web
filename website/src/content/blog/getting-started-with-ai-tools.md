@@ -6,8 +6,8 @@ tags: ["AI Tools", "Beginners Guide", "Free Tools"]
 keywords: ["free ai tools 2026", "best ai tools for beginners", "ai tools guide", "ai writing tools free"]
 author: "AutoBlog"
 lang: "en"
-heroImage: ""
-heroImageAlt: "AI tools illustration"
+heroImage: "/images/posts/2026-10-10/test-ai-agents-run-1/image-1.jpg"
+heroImageAlt: "Getting Started with AI Tools illustration"
 draft: false
 ---
 

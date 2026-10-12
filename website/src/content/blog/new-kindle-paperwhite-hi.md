@@ -6,7 +6,7 @@ tags: ["Tech", "Gadgets", "Reviews"]
 keywords: ["new kindle paperwhite", "new kindle paperwhite 2026", "kindle paperwhite hindi review", "best e-reader 2026"]
 author: "AutoBlog"
 lang: "hi"
-heroImage: ""
+heroImage: "/images/posts/2026-10-10/new-kindle-paperwhite/image-1.jpg"
 heroImageAlt: "Kindle Paperwhite E-Reader"
 draft: false
 ---
