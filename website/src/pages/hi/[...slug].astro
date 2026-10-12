@@ -29,43 +29,56 @@ const formattedDate = post.data.pubDate.toLocaleDateString('hi-IN', {
   keywords={post.data.keywords}
   image={post.data.heroImage}
 >
-  <article class="article">
-    <div class="content-container">
-      <!-- Article Header -->
+  <div class="page-container">
+    <article class="article-page">
+      <div class="article-nav-top">
+        <a href="/hi/" class="back-link">
+          ← सभी लेख
+        </a>
+      </div>
+
       <header class="article-header">
-        <div class="blog-card-tags" style="justify-content: center; margin-bottom: var(--space-4);">
-          {post.data.tags.map((tag) => (
-            <span class="tag">{tag}</span>
-          ))}
+        <div class="article-meta-top">
+          {post.data.tags && post.data.tags[0] && (
+            <>
+              <span class="meta-tag">{post.data.tags[0]}</span>
+              <span class="meta-separator" aria-hidden="true">·</span>
+            </>
+          )}
+          <time datetime={post.data.pubDate.toISOString()} class="meta-date">
+            {formattedDate}
+          </time>
+          {post.data.author && (
+            <>
+              <span class="meta-separator" aria-hidden="true">·</span>
+              <span class="meta-author">{post.data.author}</span>
+            </>
+          )}
         </div>
-        <h1 class="text-hindi">{post.data.title}</h1>
-        <div class="article-meta">
-          <span>📅 {formattedDate}</span>
-          <span>•</span>
-          <span>✍️ {post.data.author}</span>
-        </div>
+
+        <h1 class="article-title">{post.data.title}</h1>
       </header>
 
-      <!-- Hero Image -->
       {post.data.heroImage && (
-        <img
-          class="article-hero"
-          src={post.data.heroImage}
-          alt={post.data.heroImageAlt || post.data.title}
-        />
+        <div class="article-hero-wrap">
+          <img
+            class="article-hero-image"
+            src={post.data.heroImage}
+            alt={post.data.heroImageAlt || post.data.title}
+            loading="eager"
+          />
+        </div>
       )}
 
-      <!-- Article Content -->
-      <div class="article-content text-hindi">
+      <div class="article-body">
         <Content />
       </div>
 
-      <!-- Back Link -->
-      <div style="text-align: center; padding-top: var(--space-12);">
-        <a href="/hi/" class="tag text-hindi" style="font-size: var(--font-size-sm); padding: var(--space-2) var(--space-5);">
-          ← सभी पोस्ट पर वापस जाएं
+      <footer class="article-footer">
+        <a href="/hi/" class="back-link">
+          ← सभी लेखों पर वापस जाएं
         </a>
-      </div>
-    </div>
-  </article>
+      </footer>
+    </article>
+  </div>
 </BaseLayout>

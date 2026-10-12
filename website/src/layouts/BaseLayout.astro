@@ -21,8 +21,8 @@ const {
   alternateLang,
 } = Astro.props;
 
-const siteName = 'AI & Tech Simplified';
-const fullTitle = `${title} | ${siteName}`;
+const siteName = lang === 'hi' ? 'ऑटोब्लॉग' : 'AutoBlog';
+const fullTitle = `${title} — ${siteName}`;
 
 import '../styles/global.css';
 ---
@@ -33,6 +33,26 @@ import '../styles/global.css';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
+
+    <!-- Anti-FOUC Theme Init Script -->
+    <script is:inline>
+      (function() {
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const themeParam = urlParams.get('theme');
+          const stored = themeParam || localStorage.getItem('theme');
+          if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Preconnect for Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <!-- SEO -->
     <title>{fullTitle}</title>
@@ -66,29 +86,47 @@ import '../styles/global.css';
   </head>
   <body>
     <header class="site-header">
-      <div class="header-inner">
-        <a href={`/${lang}/`} class="site-logo">
-          {lang === 'hi' ? '⚡ AI & टेक' : '⚡ AI & Tech'}
+      <div class="page-container header-content">
+        <a href={`/${lang}/`} class="site-title">
+          {siteName}
         </a>
-        <nav class="site-nav">
-          <a href={`/${lang}/`} class="nav-link">
-            {lang === 'hi' ? 'होम' : 'Home'}
-          </a>
-          <div class="lang-switch">
+
+        <div class="header-nav">
+          <nav class="lang-switch" aria-label="Language selection">
             <a
               href="/en/"
-              class:list={['lang-btn', { active: lang === 'en' }]}
+              class:list={['lang-link', { active: lang === 'en' }]}
+              aria-current={lang === 'en' ? 'page' : undefined}
             >
               EN
             </a>
+            <span class="lang-divider" aria-hidden="true">/</span>
             <a
               href="/hi/"
-              class:list={['lang-btn', { active: lang === 'hi' }]}
+              class:list={['lang-link', { active: lang === 'hi' }]}
+              aria-current={lang === 'hi' ? 'page' : undefined}
             >
-              हि
+              हिन्दी
             </a>
-          </div>
-        </nav>
+          </nav>
+
+          <button
+            id="theme-toggle"
+            class="theme-toggle"
+            type="button"
+            aria-label="Toggle dark/light theme"
+            title="Toggle theme"
+          >
+            <!-- Sun icon (shown in dark theme) -->
+            <svg id="theme-icon-sun" viewBox="0 0 20 20" style="display: none;" aria-hidden="true">
+              <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-1.643 4.243a1 1 0 001.414-1.414l-.707-.707a1 1 0 10-1.414 1.414l.707.707zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4.95-.464a1 1 0 011.414-1.414l.707.707a1 1 0 11-1.414 1.414l-.707-.707zm-2.12-10.607a1 1 0 011.414 0l.707.707A1 1 0 113.636 7.05l-.707-.707a1 1 0 010-1.414zM4 9a1 1 0 100 2H3a1 1 0 100-2h1z" />
+            </svg>
+            <!-- Moon icon (shown in light theme) -->
+            <svg id="theme-icon-moon" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+            </svg>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -97,20 +135,53 @@ import '../styles/global.css';
     </main>
 
     <footer class="site-footer">
-      <div class="footer-inner">
+      <div class="page-container footer-content">
+        <p>
+          {lang === 'hi'
+            ? `© ${new Date().getFullYear()} ऑटोब्लॉग — संपादकीय टेक प्रकाशन`
+            : `© ${new Date().getFullYear()} AutoBlog — An editorial tech journal`
+          }
+        </p>
         <div class="footer-links">
           <a href={`/${lang}/`}>
-            {lang === 'hi' ? 'होम' : 'Home'}
+            {lang === 'hi' ? 'मुखपृष्ठ' : 'Home'}
           </a>
           <a href="/rss.xml">RSS</a>
         </div>
-        <p>
-          {lang === 'hi'
-            ? `© ${new Date().getFullYear()} AI & Tech Simplified. सर्वाधिकार सुरक्षित।`
-            : `© ${new Date().getFullYear()} AI & Tech Simplified. All rights reserved.`
-          }
-        </p>
       </div>
     </footer>
+
+    <!-- Theme Switcher Script -->
+    <script is:inline>
+      (function() {
+        const toggleBtn = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('theme-icon-sun');
+        const moonIcon = document.getElementById('theme-icon-moon');
+
+        function updateIcon(currentTheme) {
+          if (!sunIcon || !moonIcon) return;
+          if (currentTheme === 'dark') {
+            sunIcon.style.display = 'block';
+            moonIcon.style.display = 'none';
+          } else {
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'block';
+          }
+        }
+
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        updateIcon(current);
+
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', function() {
+            const active = document.documentElement.getAttribute('data-theme');
+            const target = active === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', target);
+            localStorage.setItem('theme', target);
+            updateIcon(target);
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
