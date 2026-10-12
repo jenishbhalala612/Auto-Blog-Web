@@ -380,11 +380,12 @@ class Publisher:
             raise RuntimeError(f"Git commit failed: {err}")
 
         console.print(f"  📝 Git commit created: [green]\"{commit_msg}\"[/]")
+        commit_created = True
 
         # Push to remote branch
         branch = config.GIT_BRANCH or "main"
         if config.GIT_AUTO_PUSH:
-            console.print(f"  🚀 Pushing to origin/{branch} (Cloudflare Pages deploy trigger)...")
+            console.print(f"  🚀 Running git push origin {branch}...")
             push_res = subprocess.run(
                 ["git", "push", "origin", branch],
                 cwd=str(repo_root),
@@ -392,14 +393,21 @@ class Publisher:
                 text=True,
                 timeout=90,
             )
+            # Display actual git push command output
+            combined_output = (push_res.stdout + ("\n" if push_res.stdout and push_res.stderr else "") + push_res.stderr).strip()
+            if combined_output:
+                console.print(f"    [dim cyan]Git push output:[/]\n    [dim]{combined_output}[/]")
+
             if push_res.returncode != 0:
-                err = push_res.stderr or push_res.stdout
+                err = push_res.stderr.strip() or push_res.stdout.strip()
                 db.log_error("publisher", "git_push_failed", f"Failed pushing to {branch}: {err}")
-                raise RuntimeError(f"Git push failed: {err}")
+                raise RuntimeError(f"Git push failed (exit code {push_res.returncode}): {err}")
             console.print(f"  ✅ Pushed successfully to origin/{branch}")
             db.log_pipeline_run("git_push", "success", commit_msg)
         else:
             console.print("  [dim]ℹ️ Git auto-push disabled (GIT_AUTO_PUSH=false in .env) — commit kept locally[/]")
+
+        return commit_created
 
     # ── 6. VERIFY POST WENT LIVE ──────────────────────────────────────────────
 
@@ -413,16 +421,19 @@ class Publisher:
         if initial_delay > 0:
             time.sleep(initial_delay)
 
+        final_status = None
         for attempt in range(1, max_retries + 1):
             try:
                 resp = self.http_client.get(live_url, timeout=10.0, follow_redirects=True)
+                final_status = f"HTTP {resp.status_code}"
                 if resp.status_code == 200:
-                    console.print(f"  ✅ Live verification confirmed: [green]{live_url}[/] (HTTP 200)")
+                    console.print(f"  ✅ Live verification confirmed on attempt {attempt}: [green]{live_url}[/] (HTTP 200)")
                     db.log_health_check("post_live_verification", "ok", details=live_url)
                     return True
                 else:
                     console.print(f"    [yellow]Retry {attempt}/{max_retries}: HTTP {resp.status_code}[/]")
             except Exception as e:
+                final_status = f"{type(e).__name__}: {e}"
                 console.print(f"    [yellow]Retry {attempt}/{max_retries}: {e}[/]")
 
             if attempt < max_retries:
@@ -430,10 +441,10 @@ class Publisher:
 
         # Flag warning for health-check monitor
         console.print(
-            f"  ⚠️  Post not yet live at [yellow]{live_url}[/] "
-            f"(Cloudflare Pages build may still be deploying). Flagged for health-check."
+            f"  ⚠️  Post not yet live at [yellow]{live_url}[/] after {max_retries} retries "
+            f"(Final status: {final_status}). Flagged for health-check."
         )
-        db.log_health_check("post_live_verification", "warning", details=f"Pending live confirmation: {live_url}")
+        db.log_health_check("post_live_verification", "warning", details=f"Pending live confirmation: {live_url} ({final_status})")
         return False
 
     # ── 7. EXECUTE PUBLISH PIPELINE FOR APPROVED POSTS ────────────────────────
@@ -467,6 +478,7 @@ class Publisher:
 
         console.print(f"\n[bold cyan]━━━ Publishing: {title} ({lang}) ━━━[/]")
         created_files: list[Path] = []
+        commit_created = False
 
         try:
             # 1. Process hero image (download remote URL or copy local asset)
@@ -487,7 +499,7 @@ class Publisher:
                 raise RuntimeError("Astro build verification failed for new content.")
 
             # 4. Git commit & push
-            self._git_stage_commit_push(created_files, title, lang)
+            commit_created = self._git_stage_commit_push(created_files, title, lang)
 
             # 5. Live URL verification
             base_site = config.SITE_URL.rstrip("/")
@@ -517,9 +529,9 @@ class Publisher:
             return post_record
 
         except Exception as e:
-            # Error handling: Rollback created files, increment failure attempts, alert user
+            # Error handling: Rollback created files and git commit, increment failure attempts, alert user
             console.print(f"  [bold red]❌ Failed to publish '{title}': {e}[/]")
-            self._rollback(created_files)
+            self._rollback(created_files, commit_created=commit_created)
 
             attempts = db.increment_publish_attempts(slug)
             db.log_error("publisher", "publish_failed", f"Failed to publish {slug} (attempt {attempts}): {e}")
@@ -572,8 +584,26 @@ class Publisher:
         )
         self.notifier._send(msg)
 
-    def _rollback(self, created_files: list[Path]):
-        """Remove any newly created content or image files upon failure."""
+    def _rollback(self, created_files: list[Path], commit_created: bool = False):
+        """
+        Remove any newly created content or image files upon failure,
+        and undo the local git commit if one was created before the push failed.
+        """
+        if commit_created:
+            try:
+                res = subprocess.run(
+                    ["git", "reset", "--hard", "HEAD~1"],
+                    cwd=str(self.repo_root),
+                    capture_output=True,
+                    text=True,
+                )
+                if res.returncode == 0:
+                    console.print("  [yellow]⏪ Undid local git commit (git reset --hard HEAD~1)[/]")
+                else:
+                    console.print(f"  [red]Failed to undo git commit: {res.stderr}[/]")
+            except Exception as e:
+                console.print(f"  [red]Error resetting git commit: {e}[/]")
+
         for f in created_files:
             try:
                 if f.exists() and f.is_file():
