@@ -131,7 +131,11 @@ def run_full_pipeline(resume=False):
             console.print(f"  ✅ Images processed")
 
         if starting_step <= 5:
-            console.print("\n[bold cyan]━━━ Step 5/6: Publishing Approved Posts ━━━[/]")
+            console.print("\n[bold cyan]━━━ Step 5/6: Publishing Posts ━━━[/]")
+            if config.AUTO_PUBLISH:
+                console.print("  ✨ AUTO_PUBLISH=true: pushing all ready posts (content + images) to website")
+            else:
+                console.print("  ℹ️  AUTO_PUBLISH=false: manual approval mode (waiting for draft: false in Obsidian)")
             tracker.step_start("Publishing", step=5)
             publisher = Publisher()
             published = publisher.publish_approved()

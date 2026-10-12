@@ -116,10 +116,27 @@ class Publisher:
                     content = md_file.read_text(encoding="utf-8")
                     frontmatter, body = self._parse_markdown(content)
 
-                    # 1. Must have draft: false (explicitly toggled to false by user)
+                    # 1. Check approval & readiness status
+                    hero_img = str(frontmatter.get("heroImage", "")).strip()
+                    has_images_ready = bool(hero_img and hero_img not in ('""', "''", "None"))
                     draft_val = frontmatter.get("draft")
-                    if draft_val is not False and str(draft_val).lower() != "false":
-                        continue
+                    is_explicitly_approved = (draft_val is False or str(draft_val).lower() == "false")
+
+                    if config.AUTO_PUBLISH:
+                        # Auto-publish mode: drafts are published as soon as content and images are ready
+                        if not has_images_ready:
+                            console.print(f"  [dim]⏳ Waiting for images before pushing: {md_file.name}[/]")
+                            continue
+                        if not is_explicitly_approved:
+                            frontmatter["draft"] = False
+                            updated_content = re.sub(r"draft:\s*true", "draft: false", content)
+                            if updated_content != content:
+                                md_file.write_text(updated_content, encoding="utf-8")
+                            console.print(f"  ✨ Auto-publish ready: [cyan]{md_file.name}[/] (content + images ready)")
+                    else:
+                        # Manual approval mode: only push posts where draft: false was set manually
+                        if not is_explicitly_approved:
+                            continue
 
                     # 2. Must not be rejected
                     if frontmatter.get("rejected") is True or str(frontmatter.get("rejected", "")).lower() == "true":

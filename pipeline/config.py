@@ -71,6 +71,13 @@ GIT_REPO_URL = os.getenv("GIT_REPO_URL", "")
 GIT_BRANCH = os.getenv("GIT_BRANCH", "main")
 GIT_AUTO_PUSH = os.getenv("GIT_AUTO_PUSH", "true").lower() == "true"
 
+# ── Publishing ──────────────────────────────────────────
+# When AUTO_PUBLISH is true, blog posts are automatically pushed to the website
+# (Astro build verified, git committed, and pushed to GitHub -> Vercel auto-deploy)
+# as soon as all blogs and images are ready.
+# When false, posts remain in vault/Drafts/ with draft: true for manual review in Obsidian.
+AUTO_PUBLISH = os.getenv("AUTO_PUBLISH", "true").lower() in ("true", "1", "yes")
+
 # ── Monitoring ──────────────────────────────────────────
 HEALTH_CHECK_INTERVAL = int(os.getenv("HEALTH_CHECK_INTERVAL", "900"))
 MAX_FAILURES_BEFORE_ALERT = int(os.getenv("MAX_FAILURES_BEFORE_ALERT", "3"))

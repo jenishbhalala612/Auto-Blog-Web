@@ -180,9 +180,14 @@ def _job_writing():
 
 def _job_images():
     from modules.image_handler import ImageHandler
+    from modules.publisher import Publisher
     def run():
         handler = ImageHandler()
         handler.process_pending_drafts()
+        if config.AUTO_PUBLISH:
+            console.print("  ✨ Auto-publish: checking for ready posts to push to website...")
+            publisher = Publisher()
+            publisher.publish_approved()
     _safe_run("images", run)
 
 

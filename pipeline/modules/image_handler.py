@@ -59,6 +59,11 @@ class ImageHandler:
         hero_match = re.search(r'heroImage:\s*["\']([^"\']+)["\']', content)
         if hero_match and hero_match.group(1).strip():
             console.print(f"    ⏩ Skipping images for: [dim]{title[:40]}[/] (already has heroImage)")
+            if config.AUTO_PUBLISH and "draft: true" in content:
+                content = re.sub(r'draft:\s*true', 'draft: false', content)
+                file_path.write_text(content, encoding="utf-8")
+                db.update_post_status(slug, "approved")
+                console.print(f"        ✨ Auto-publish: images already present — marked ready to push (`draft: false`)")
             return True
 
         today = datetime.now().strftime("%Y-%m-%d")
@@ -207,6 +212,9 @@ class ImageHandler:
             f"    🖼️  Saved [green]{len(saved_web_paths)}[/] distinct images for: [cyan]{slug[:35]}[/]\n"
             f"        Source: [dim]{hero_source}[/]"
         )
+        if config.AUTO_PUBLISH:
+            db.update_post_status(slug, "approved")
+            console.print(f"        ✨ Auto-publish: images ready — '{slug}' marked approved (`draft: false`)")
         return True
 
     def process_pending_drafts(self):
@@ -418,6 +426,10 @@ class ImageHandler:
                     f'heroImage: "{hero_image}"',
                     f'heroImage: "{hero_image}"\nheroImageSource: "{hero_image_source}"'
                 )
+
+        # Auto-publish setting: mark draft ready once images are attached
+        if config.AUTO_PUBLISH:
+            content = re.sub(r'draft:\s*true', 'draft: false', content)
 
         # Embed extra images (2, 3, 4) into the article body
         if extra_images and not any(img in content for img in extra_images):
