@@ -32,7 +32,7 @@ if hasattr(sys.stderr, "reconfigure"):
 import config
 from modules.status_tracker import get_status, force_stop
 
-DASHBOARD_PORT = 5000
+DASHBOARD_PORT = 5050
 
 
 # ── Pipeline Process Manager ──────────────────────────────────────────────────
