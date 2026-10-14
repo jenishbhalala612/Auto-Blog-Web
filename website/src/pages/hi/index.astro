@@ -12,6 +12,7 @@ const posts = allPosts.sort(
 
 const featuredPost = posts[0];
 const remainingPosts = posts.slice(1);
+const INITIAL_VISIBLE = 5;
 ---
 
 <BaseLayout
@@ -103,8 +104,8 @@ const remainingPosts = posts.slice(1);
             </header>
 
             <ul class="posts-list">
-              {remainingPosts.map((post) => (
-                <li class="post-row">
+              {remainingPosts.map((post, index) => (
+                <li class="post-row" data-hidden={index >= INITIAL_VISIBLE ? 'true' : undefined}>
                   <div class="post-row-content">
                     <div class="post-meta" style="margin-bottom: 0.5rem;">
                       {post.data.tags && post.data.tags.length > 0 && (
@@ -151,9 +152,54 @@ const remainingPosts = posts.slice(1);
                 </li>
               ))}
             </ul>
+
+            {remainingPosts.length > INITIAL_VISIBLE && (
+              <div class="load-more-container" id="load-more-container">
+                <button id="load-more-btn" class="btn-load-more" type="button">
+                  <span>और लेख देखें</span>
+                  <svg class="load-more-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+                <span class="load-more-count" id="load-more-count">
+                  <strong>{remainingPosts.length}</strong> में से <strong id="visible-count">{Math.min(INITIAL_VISIBLE, remainingPosts.length)}</strong> लेख दिखाए गए
+                </span>
+              </div>
+            )}
           </section>
         )}
       </>
     )}
   </div>
+
+  <script is:inline>
+    (function() {
+      const BATCH_SIZE = 5;
+      const btn = document.getElementById('load-more-btn');
+      const counter = document.getElementById('visible-count');
+      const hiddenRows = Array.from(document.querySelectorAll('.post-row[data-hidden="true"]'));
+      if (!btn || hiddenRows.length === 0) return;
+
+      let revealedCount = 0;
+
+      btn.addEventListener('click', function() {
+        const nextBatch = hiddenRows.slice(revealedCount, revealedCount + BATCH_SIZE);
+        nextBatch.forEach(function(row) {
+          row.removeAttribute('data-hidden');
+          row.classList.add('post-row-revealed');
+        });
+        revealedCount += nextBatch.length;
+
+        if (counter) {
+          counter.textContent = String(5 + revealedCount);
+        }
+
+        if (revealedCount >= hiddenRows.length) {
+          btn.disabled = true;
+          btn.classList.add('all-loaded');
+          btn.innerHTML = '<span>सभी लेख लोड हो चुके हैं</span> ✓';
+        }
+      });
+    })();
+  </script>
 </BaseLayout>
