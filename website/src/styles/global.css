@@ -472,6 +472,70 @@ main {
   margin-bottom: 0.75rem;
 }
 
+/* Read More Button (Featured) */
+.read-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent);
+  padding: 0.55rem 1.15rem;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 0.5rem;
+}
+
+.read-more-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(184, 134, 59, 0.25);
+}
+
+.read-more-btn .read-more-icon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+
+.read-more-btn:hover .read-more-icon {
+  transform: translateX(3px);
+}
+
+/* Read More Inline Link (Post Rows) */
+.read-more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  margin-top: 0.5rem;
+  transition: color 0.15s ease, gap 0.2s ease;
+}
+
+.read-more-link .read-more-icon {
+  width: 13px;
+  height: 13px;
+  transition: transform 0.2s ease;
+}
+
+.read-more-link:hover {
+  color: var(--text);
+}
+
+.read-more-link:hover .read-more-icon {
+  transform: translateX(3px);
+}
+
 .post-meta {
   font-size: 0.8125rem;
   color: var(--text-muted);

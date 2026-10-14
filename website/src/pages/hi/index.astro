@@ -82,6 +82,15 @@ const remainingPosts = posts.slice(1);
                 {featuredPost.data.description}
               </p>
             )}
+
+            <div>
+              <a href={`/hi/${featuredPost.slug}/`} class="read-more-btn">
+                <span>पूरा लेख पढ़ें</span>
+                <svg class="read-more-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </a>
+            </div>
           </article>
         )}
 
@@ -120,6 +129,13 @@ const remainingPosts = posts.slice(1);
                     {post.data.description && (
                       <p class="post-description">{post.data.description}</p>
                     )}
+
+                    <a href={`/hi/${post.slug}/`} class="read-more-link">
+                      <span>अधिक पढ़ें</span>
+                      <svg class="read-more-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                      </svg>
+                    </a>
                   </div>
 
                   {post.data.heroImage && (
